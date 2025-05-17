@@ -1,0 +1,5 @@
+# Ignore build directories
+target/
+bin/
+dist/
+Cargo.lock
