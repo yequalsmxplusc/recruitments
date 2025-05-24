@@ -8,13 +8,16 @@ use std::fs;
 pub struct Applicant {
     pub id: String,
     pub name: String,
-    pub email: String,
+    // pub email: String,
     #[serde(skip_serializing)]
     pub password: String,
     pub contact_number: String,
     pub is_selected: bool,
     pub department: String,
-    pub date: String,
+    pub year: String,
+    pub interview_slot: String,
+    pub is_admin: bool,
+    // pub date: String,
 }
 
 pub struct AppState {

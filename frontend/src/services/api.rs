@@ -2,7 +2,7 @@ use crate::models::applicant::Applicant;
 use gloo_net::http::{Request, Response};
 // use serde_json::from_str;
 
-const API_BASE: &str = "http://localhost:8080";
+const API_BASE: &str = "http://localhost:8000";
 
 pub async fn fetch_applicants(token: String) -> Result<Vec<Applicant>, String> {
     let response = Request::get(&format!("{}/api/applicants", API_BASE))

@@ -71,7 +71,7 @@ pub fn ApplicantList(props: &Props) -> Html {
                     <thead>
                         <tr>
                             <th class="py-2 px-4 border-b border-gray-200 dark:border-gray-700 text-left text-gray-900 dark:text-white">{ "Name" }</th>
-                            <th class="py-2 px-4 border-b border-gray-200 dark:border-gray-700 text-left text-gray-900 dark:text-white">{ "Email" }</th>
+                            <th class="py-2 px-4 border-b border-gray-200 dark:border-gray-700 text-left text-gray-900 dark:text-white">{ "id" }</th>
                             <th class="py-2 px-4 border-b border-gray-200 dark:border-gray-700 text-left text-gray-900 dark:text-white">{ "Contact Number" }</th>
                             <th class="py-2 px-4 border-b border-gray-200 dark:border-gray-700 text-left text-gray-900 dark:text-white">{ "Department" }</th>
                             <th class="py-2 px-4 border-b border-gray-200 dark:border-gray-700 text-left text-gray-900 dark:text-white">{ "Date" }</th>

@@ -34,7 +34,7 @@ pub fn Login(props: &Props) -> Html {
             let auth = auth.clone();
 
             wasm_bindgen_futures::spawn_local(async move {
-                match Request::post("http://localhost:8080/login")
+                match Request::post("http://localhost:8000/login")
                     .json(&json!({
                         "username": username_val,
                         "password": password_val,
@@ -91,7 +91,7 @@ pub fn Login(props: &Props) -> Html {
                             <input
                                 id="password"
                                 type="password"
-                                required = true
+                                required =true
                                 class="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white rounded-b-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm bg-white dark:bg-gray-700"
                                 placeholder="Password"
                                 value={(*password).clone()}
