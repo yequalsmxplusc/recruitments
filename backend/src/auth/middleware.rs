@@ -4,6 +4,7 @@ use jsonwebtoken::{decode, Validation};
 use crate::auth::models::{Claims, AuthConfig};
 use actix_web::web;
 
+//Validates jwt authenticator token
 pub async fn validator(
     req: ServiceRequest,
     credentials: BearerAuth,

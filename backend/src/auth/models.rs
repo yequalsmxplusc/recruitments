@@ -5,12 +5,29 @@ use jsonwebtoken::{EncodingKey, DecodingKey};
 pub struct Claims {
     pub sub: String,
     pub exp: usize,
+    pub is_admin: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LoginRequest {
     pub username: String,
     pub password: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Applicant {
+    pub id: String,
+    pub name: String,
+    pub email: String,
+    pub password: String,
+    pub contact_number: String,
+    #[serde(rename = "isSelected")]
+    pub is_selected: bool,
+    pub department: String,
+    pub year: String,
+    pub interview_slot: String,
+    #[serde(rename = "isAdmin")]
+    pub is_admin: bool,
 }
 
 #[derive(Debug, Serialize)]

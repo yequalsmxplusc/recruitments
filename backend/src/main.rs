@@ -21,8 +21,8 @@ async fn main() -> std::io::Result<()> {
 
     // Get the environment variables for secret, admin username, and password hash
     let jwt_secret = std::env::var("JWT_SECRET").expect("JWT_SECRET must be set");
-    let admin_username = std::env::var("ADMIN_USERNAME").expect("ADMIN_USERNAME must be set");
-    let admin_password_hash = std::env::var("ADMIN_PASSWORD_HASH").expect("ADMIN_PASSWORD_HASH must be set");
+    let admin_username = std::env::var("ADMIN_USERNAME").expect("ADMIN_USERNAME must be set");//future superadmin use
+    let admin_password_hash = std::env::var("ADMIN_PASSWORD_HASH").expect("ADMIN_PASSWORD_HASH must be set");//future superadmin use
 
     // Pass all three arguments to AuthConfig::new
     let auth_config = AuthConfig::new(&jwt_secret, admin_username, admin_password_hash);
@@ -36,7 +36,9 @@ async fn main() -> std::io::Result<()> {
     // Start the Actix server
     HttpServer::new(move || {
         let auth_middleware = HttpAuthentication::bearer(validator);
-
+        /**
+         * Services Used: POST /login, GET /api/applicants,GET /api/applicants/all,  PATCH /api/applicants/{id}
+         */
         App::new()
             .app_data(app_state.clone())
             .app_data(web::Data::new(auth_config.clone()))
@@ -46,7 +48,8 @@ async fn main() -> std::io::Result<()> {
                     .wrap(auth_middleware)
                     .service(
                         web::scope("/applicants")
-                            .service(applicants::service::get_applicants)
+                            .service(applicants::service::get_all_applicants)
+                            .service(applicants::service::get_applicant)
                             .service(applicants::service::update_applicant),
                     ),
             )
