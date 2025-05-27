@@ -19,6 +19,7 @@ struct ApplicantUpdate {
     pub interview_slot: Option<String>,
     #[serde(rename = "isAdmin")]
     pub is_admin: Option<bool>,
+    pub status: String,
 }
 
 pub struct AppState {
@@ -177,6 +178,11 @@ pub async fn update_applicant(
         if let Some(is_selected_value) = update.is_selected {
             if is_admin {
                 applicant.is_selected = is_selected_value;
+            }
+        }
+        if let Some(status) = update.status {
+            if is_admin {
+                applicant.status = status;
             }
         }
         let updated_applicant = applicant.clone();

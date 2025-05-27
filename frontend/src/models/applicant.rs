@@ -9,5 +9,8 @@ pub struct Applicant {
     pub contact_number: String,
     pub is_selected: bool,
     pub department: String,
-    pub date: String,
+    pub year: String,
+    pub interview_slot: String,
+    pub is_admin: bool,
+    pub status: String,
 }

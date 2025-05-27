@@ -65,7 +65,7 @@ pub fn Login(props: &Props) -> Html {
         <div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
             <div class="max-w-md w-full space-y-8 p-8 bg-white dark:bg-gray-800 rounded-lg shadow">
                 <h2 class="text-3xl font-extrabold text-center text-gray-900 dark:text-white">
-                    { "Club Recruitment Portal" }
+                    { "Coordinator Recruitment Portal 2025" }
                 </h2>
                 if let Some(err) = &*error {
                     <div class="text-red-500 text-center">{ err }</div>
@@ -73,13 +73,13 @@ pub fn Login(props: &Props) -> Html {
                 <form class="mt-8 space-y-6" onsubmit={on_submit}>
                     <div class="rounded-md shadow-sm space-y-4">
                         <div>
-                            <label for="username" class="sr-only">{"Username"}</label>
+                            <label for="username" class="sr-only">{"ID or Email address"}</label>
                             <input
                                 id="username"
                                 type="text"
                                 required = true
                                 class="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white rounded-t-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm bg-white dark:bg-gray-700"
-                                placeholder="Username"
+                                placeholder="ID or Email Address"
                                 value={(*username).clone()}
                                 oninput={Callback::from(move |e: InputEvent| {
                                     username.set(e.target_unchecked_into::<web_sys::HtmlInputElement>().value());

@@ -28,6 +28,7 @@ pub struct Applicant {
     pub interview_slot: String,
     #[serde(rename = "isAdmin")]
     pub is_admin: bool,
+    pub status: String,
 }
 
 #[derive(Debug, Serialize)]
