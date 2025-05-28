@@ -42,18 +42,10 @@ async fn main() -> std::io::Result<()> {
     // Start the Actix server
     HttpServer::new(move || {
 
-     let allowed_origin = frontend_url.clone();
+    //  let allowed_origin = frontend_url.clone();
 
      let cors = Cors::default()
-    .allowed_origin_fn({
-        let allowed_origin = allowed_origin.clone();
-        move |origin, _req_head| {
-            origin.as_bytes() == allowed_origin.as_bytes()
-                || origin == "http://localhost:3000"
-                || origin == "http://127.0.0.1:3000"
-                ||origin == "https://mrtlhcd9-3000.inc1.devtunnels.ms/"
-        }
-    })
+    .allowed_origin(&frontend_url)
     .allowed_methods(vec!["GET", "POST", "PATCH", "OPTIONS"])
     .allowed_headers(vec![
         actix_web::http::header::AUTHORIZATION,

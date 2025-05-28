@@ -145,10 +145,10 @@ impl AuthContextHandle {
     pub fn token(&self) -> String {
         self.inner.token.clone().unwrap_or_default()
     }
-
-    pub fn username(&self) -> String {
-        self.inner.username.clone().unwrap_or_default()
-    }
+    
+    // pub fn username(&self) -> String {
+    //     self.inner.username.clone().unwrap_or_default()
+    // }
 
     pub fn dispatch(&self, action: AuthAction) {
         self.inner.dispatch(action);

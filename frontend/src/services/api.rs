@@ -1,22 +1,31 @@
 use crate::models::applicant::Applicant;
 use gloo_net::http::{Request, Response};
-// use serde_json::from_str;
+use dotenv::dotenv;
+use std::env;
+use std::sync::OnceLock;
 
-const API_BASE: &str = "http://localhost:8000";
+// Define a global variable using OnceLock for lazy initialization
+static API_BASE: OnceLock<String> = OnceLock::new();
+
+pub fn get_api_base() -> &'static str {
+    API_BASE.get_or_init(|| {
+        dotenv().ok();
+        env::var("API_BASE").expect("API_BASE must be set")
+    })
+}
 
 // Change fetch_applicants to return a single Applicant (not Vec<Applicant>)
 pub async fn fetch_applicant(token: String) -> Result<Applicant, String> {
-    let response = Request::get(&format!("{}/api/applicants/", API_BASE))
+    let response = Request::get(&format!("{}/api/applicants/", get_api_base()))
         .header("Authorization", &format!("Bearer {}", token))
         .send()
         .await
         .map_err(|e| e.to_string())?;
-    
     parse_response(response).await
 }
 
 pub async fn fetch_all_applicants(token: String) -> Result<Vec<Applicant>, String> {
-    let response = Request::get(&format!("{}/api/applicants/all", API_BASE))
+    let response = Request::get(&format!("{}/api/applicants/all", get_api_base()))
         .header("Authorization", &format!("Bearer {}", token))
         .send()
         .await
@@ -34,14 +43,13 @@ pub async fn update_applicant(
     applicant: &Applicant,
     token: String,
 ) -> Result<Applicant, String> {
-    let response = Request::patch(&format!("{}/api/applicants/{}", API_BASE, applicant.id))
+    let response = Request::patch(&format!("{}/api/applicants/{}", get_api_base(), applicant.id))
         .header("Authorization", &format!("Bearer {}", token))
         .json(applicant)
         .map_err(|e| e.to_string())?
         .send()
         .await
         .map_err(|e| e.to_string())?;
-    
     parse_response(response).await
 }
 
