@@ -28,7 +28,7 @@ pub async fn login(
     // println!("Searching for applicant with username: {}", credentials.username);
 
     if let Some(applicant) = applicant {
-        println!("Applicant found: {:?}", applicant);
+        // println!("Applicant found: {:?}", applicant);
 
         // Directly compare the passwords (not secure for production)
         if applicant.password != credentials.password {

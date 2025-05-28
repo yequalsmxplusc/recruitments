@@ -4,7 +4,8 @@ use gloo_net::http::{Request, Response};
 
 const API_BASE: &str = "http://localhost:8000";
 
-pub async fn fetch_applicants(token: String) -> Result<Vec<Applicant>, String> {
+// Change fetch_applicants to return a single Applicant (not Vec<Applicant>)
+pub async fn fetch_applicant(token: String) -> Result<Applicant, String> {
     let response = Request::get(&format!("{}/api/applicants/", API_BASE))
         .header("Authorization", &format!("Bearer {}", token))
         .send()
@@ -20,8 +21,13 @@ pub async fn fetch_all_applicants(token: String) -> Result<Vec<Applicant>, Strin
         .send()
         .await
         .map_err(|e| e.to_string())?;
-    
-    parse_response(response).await
+
+    let text = response.text().await.map_err(|e| e.to_string())?;
+
+    if text.contains("Admin access required") {
+        return Err("not_admin".to_string()); // custom signal to show 404
+    }
+    serde_json::from_str(&text).map_err(|e| e.to_string())
 }
 
 pub async fn update_applicant(

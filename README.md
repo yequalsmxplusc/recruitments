@@ -68,13 +68,15 @@ cd backend
 echo "JWT_SECRET=your_very_secure_secret_here" > .env
 echo "ADMIN_USERNAME=admin" >> .env
 echo "ADMIN_PASSWORD_HASH=$(cargo run --bin hash_password)" >> .env
+echo "FRONTEND_URI=..." >>.env
 ```
 
  - Prepare frontend:
 
 ```
 cd ../frontend
-trunk build --release
+cargo build
+trunk serve --port 3000 
 ```
  - Run the system:
 

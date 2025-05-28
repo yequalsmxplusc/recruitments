@@ -153,4 +153,7 @@ impl AuthContextHandle {
     pub fn dispatch(&self, action: AuthAction) {
         self.inner.dispatch(action);
     }
+    pub fn logout(&self) {
+        self.dispatch(AuthAction::Logout);
+    }
 }

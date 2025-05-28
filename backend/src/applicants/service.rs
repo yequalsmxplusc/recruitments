@@ -57,6 +57,7 @@ pub async fn load_applicants() -> Vec<Applicant> {
             year: a.year.unwrap_or_default(),
             interview_slot: a.interview_slot.unwrap_or_else(|| "Not Assigned".to_string()),
             is_admin: a.is_admin.unwrap_or(false),
+            status: a.status.to_string(),
         })
         .collect()
 }
@@ -180,7 +181,7 @@ pub async fn update_applicant(
                 applicant.is_selected = is_selected_value;
             }
         }
-        if let Some(status) = update.status {
+        if let status = update.status {
             if is_admin {
                 applicant.status = status;
             }

@@ -8,6 +8,10 @@ mod routers;
 mod components{
     pub mod login;
     pub mod applicant_list;
+    pub mod dashboard;
+    pub mod reset;
+    pub mod header;
+    pub mod footer;
 }
 mod models{
     pub mod applicant;
