@@ -42,6 +42,8 @@ async fn main() -> std::io::Result<()> {
          * GET /api/applicants/all,  
          * PATCH /api/applicants/{id}
          */
+
+     println!("[LOG] Port running on {}",bind_address);
     // Start the Actix server
     HttpServer::new(move || {
 
