@@ -50,7 +50,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
 
     //  let allowed_origin = frontend_url.clone();
-
+    println!("[CORS] Allowed origins: {}, {}", frontend_url, frontend_url_prod);
      let cors = Cors::default()
     .allowed_origin(&frontend_url)
     .allowed_origin(&frontend_url_prod)
