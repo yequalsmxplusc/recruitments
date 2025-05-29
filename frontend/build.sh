@@ -1,23 +1,32 @@
 #!/bin/bash
+set -e  # Exit immediately on error
 
-set -e  # Exit on error
+# Ensure we’re in the correct directory (where Cargo.toml and Trunk.toml are)
+cd "$(dirname "$0")"
 
-# Navigate to the directory where Cargo.toml, Trunk.toml, and index.html live
-cd "$(dirname "$0")"  # This makes sure we are in /frontend
+echo "🔧 Installing Rust (if missing)..."
+if ! command -v rustup &> /dev/null; then
+    curl https://sh.rustup.rs -sSf | sh -s -- -y
+    source "$HOME/.cargo/env"
+fi
 
-# Install Rust if not present
-curl https://sh.rustup.rs -sSf | sh -s -- -y
-source "$HOME/.cargo/env"
 export PATH="$HOME/.cargo/bin:$PATH"
 
-# Set default Rust toolchain
+echo "📦 Setting Rust to stable toolchain..."
 rustup default stable
 
-# Install Trunk (skip if already installed)
-cargo install trunk || true
+echo "📥 Installing Trunk (if not already installed)..."
+if ! command -v trunk &> /dev/null; then
+    cargo install trunk
+fi
 
-# Add wasm target
+echo "🎯 Adding wasm32 target for Rust..."
 rustup target add wasm32-unknown-unknown
 
-# Build the Yew app
+echo "🏗️ Building Yew app with Trunk..."
 trunk build --release --public-url "/" --config Trunk.toml
+
+echo "🪄 Fixing SPA refresh issue: Copying index.html → 404.html"
+cp dist/index.html dist/404.html
+
+echo "✅ Build complete!"

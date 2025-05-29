@@ -36,7 +36,7 @@ fn App() -> Html {
         <ContextProvider<AuthContextHandle> context={auth_handle}>
             <body class={if *dark_mode { "dark" } else { "" }}>
                 <BrowserRouter>
-                   <Switch<Route> render={move |routes: Route| switch(routes, AuthContextHandle { inner: auth.clone() })} />
+                   <Switch<Route> render={move |routes: Route| switch(routes, AuthContextHandle { inner: auth_handle.clone() })} />
                 </BrowserRouter>
             </body>
         </ContextProvider<AuthContextHandle>>

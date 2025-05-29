@@ -17,6 +17,9 @@ pub fn header(props: &Props) -> Html {
         auth.logout(); // Clear token and username
         navigator.push(&Route::Login); // Redirect to login page
     });
+    let on_reset =  Callback::from(move |_| {
+        navigator.push(&Route::Reset);
+    });
 
     html! {
         <header class="w-full bg-gray-300 shadow-sm py-4 px-6 flex justify-between items-center rounded-lg">
@@ -28,7 +31,7 @@ pub fn header(props: &Props) -> Html {
         <button onclick={on_logout} class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg">
             { "Logout" }
         </button>
-        <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
+        <button onclick={on_reset} class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
             { "Reset" }
         </button>
     </div>
