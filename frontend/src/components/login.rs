@@ -2,7 +2,7 @@ use yew::prelude::*;
 use gloo_net::http::Request;
 use serde_json::json;
 use crate::auth::context::AuthAction;
-use crate::services::api::get_api_base;
+// use crate::services::api::get_api_base;
 // use crate::components::footer::Footer;
 
 #[derive(Properties, PartialEq)]
@@ -36,7 +36,7 @@ pub fn Login(props: &Props) -> Html {
             let auth = auth.clone();
 
             wasm_bindgen_futures::spawn_local(async move {
-                match Request::post(&format!("{}/login",get_api_base()))
+                match Request::post(&format!("https://recruitments-backend-a55x.onrender.com/login"))
                     .json(&json!({
                         "username": username_val,
                         "password": password_val,
