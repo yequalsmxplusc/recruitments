@@ -4,15 +4,17 @@ use dotenv::dotenv;
 use std::env;
 use std::sync::OnceLock;
 
-// Define a global variable using OnceLock for lazy initialization
+//env call in WASM (non cli-static)
 static API_BASE: OnceLock<String> = OnceLock::new();
 
 pub fn get_api_base() -> &'static str {
     API_BASE.get_or_init(|| {
-        dotenv().ok();
-        env::var("API_BASE").expect("API_BASE must be set")
+        option_env!("API_BASE")
+            .expect("API_BASE must be set at compile time")
+            .to_string()
     })
 }
+
 
 // Change fetch_applicants to return a single Applicant (not Vec<Applicant>)
 pub async fn fetch_applicant(token: String) -> Result<Applicant, String> {

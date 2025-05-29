@@ -24,7 +24,9 @@ async fn main() -> std::io::Result<()> {
     let jwt_secret = std::env::var("JWT_SECRET").expect("JWT_SECRET must be set");
     let admin_username = std::env::var("ADMIN_USERNAME").expect("ADMIN_USERNAME must be set");//future superadmin use
     let admin_password_hash = std::env::var("ADMIN_PASSWORD_HASH").expect("ADMIN_PASSWORD_HASH must be set");//future superadmin use
-     let frontend_url = std::env::var("FRONTEND_URL").expect("FRONTEND_URL must be set");
+    let frontend_url = std::env::var("FRONTEND_URL").expect("FRONTEND_URL must be set"); //Vercel App
+    let frontend_url_prod = std::env::var("FRONTEND_URL_PROD").expect("FRONTEND_URL_PROD must be set"); //juecell subdomain
+
     // Pass all three arguments to AuthConfig::new
     let auth_config = AuthConfig::new(&jwt_secret, admin_username, admin_password_hash);
 
@@ -51,6 +53,7 @@ async fn main() -> std::io::Result<()> {
 
      let cors = Cors::default()
     .allowed_origin(&frontend_url)
+    .allowed_origin(&frontend_url_prod)
     .allowed_methods(vec!["GET", "POST", "PATCH", "OPTIONS"])
     .allowed_headers(vec![
         actix_web::http::header::AUTHORIZATION,
