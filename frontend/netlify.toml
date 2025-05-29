@@ -1,8 +1,0 @@
-[build]
-base = "frontend"
-publish = "dist"
-command = "./build.sh"
-
-[build.environment]
-RUSTUP_HOME = "/opt/buildhome/.rustup"
-CARGO_HOME = "/opt/buildhome/.cargo"
