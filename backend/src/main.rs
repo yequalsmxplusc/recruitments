@@ -33,6 +33,9 @@ async fn main() -> std::io::Result<()> {
     let app_state = web::Data::new(AppState {
         applicants: Mutex::new(initial_data),
     });
+
+    let port = std::env::var("PORT").unwrap_or_else(|_| "8000".to_string());
+    let bind_address = format!("0.0.0.0:{}", port);
         /*
          * Services Used: POST /login,
          *  GET /api/applicants,
@@ -72,7 +75,7 @@ async fn main() -> std::io::Result<()> {
                     ),
             )
     })
-    .bind("0.0.0.0:8000")?
+    .bind(bind_address)?
     .run()
     .await
 }
