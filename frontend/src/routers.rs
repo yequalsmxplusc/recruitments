@@ -12,7 +12,7 @@ pub enum Route {
     Login,
     #[at("/")]
     Home,
-    #[at("/admin")]
+    #[at("/sudoadmin")]
     Admin,
     #[not_found]
     #[at("/404")]
