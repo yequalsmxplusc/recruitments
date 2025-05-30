@@ -32,11 +32,11 @@ fn App() -> Html {
 
     let dark_mode = use_state(|| false);
 
-    html! {
-        <ContextProvider<AuthContextHandle> context={auth_handle}>
+   html! {
+        <ContextProvider<AuthContextHandle> context={auth_handle.clone()}>
             <body class={if *dark_mode { "dark" } else { "" }}>
                 <BrowserRouter>
-                   <Switch<Route> render={move |routes: Route| switch(routes, AuthContextHandle { inner: auth_handle.clone() })} />
+                    <Switch<Route> render={move |routes: Route| switch(routes, auth_handle.clone())} />
                 </BrowserRouter>
             </body>
         </ContextProvider<AuthContextHandle>>

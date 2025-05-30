@@ -12,13 +12,14 @@ pub struct Props {
 pub fn header(props: &Props) -> Html {
     let auth = props.auth.clone();
     let navigator = use_navigator().unwrap();
+    let navigator_clone = navigator.clone(); //clones navigator to allow rerouting
 
     let on_logout = Callback::from(move |_| {
         auth.logout(); // Clear token and username
         navigator.push(&Route::Login); // Redirect to login page
     });
-    let on_reset =  Callback::from(move |_| {
-        navigator.push(&Route::Reset);
+    let on_reset = Callback::from(move |_| {
+        navigator_clone.push(&Route::Reset); // Use the cloned navigator
     });
 
     html! {

@@ -1,5 +1,5 @@
 use yew::prelude::*;
-use yew_router::prelude::*;
+use yew_router::{navigator, prelude::*};
 use crate::components::login::Login;
 use crate::components::applicant_list::ApplicantList;
 use crate::components::dashboard::Dashboard;
