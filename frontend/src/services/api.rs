@@ -40,6 +40,8 @@ pub async fn fetch_all_applicants(token: String) -> Result<Vec<Applicant>, Strin
     if text.contains("Admin access required") {
         return Err("not_admin".to_string()); // custom signal to show 404
     }
+    // Log raw JSON to browser console
+    web_sys::console::log_1(&format!("Applicants JSON: {}", text).into());
     serde_json::from_str(&text).map_err(|e| e.to_string())
 }
 
