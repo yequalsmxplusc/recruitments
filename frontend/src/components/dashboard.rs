@@ -87,7 +87,7 @@ pub fn dashboard(props: &Props) -> Html {
                             </div>
                             <div class="sm:col-span-1">
                             if applicant.status.as_str()=="Selected" {
-                               <a href="https://wa.me/917439484942" target="_blank" class="bg-green-500 text-white py-2 px-4 rounded-full shadow-lg hover:bg-green-600">{"Join WhatsApp Group"}</a>}
+                               <a href="https://chat.whatsapp.com/HLQP0xicrTXJYIOVJGJTMR" target="_blank" class="bg-green-500 text-white py-2 px-4 rounded-full shadow-lg hover:bg-green-600">{"Join WhatsApp Group"}</a>}
                             </div>
                         </dl>
                     </div>
