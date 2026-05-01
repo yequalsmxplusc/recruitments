@@ -15,7 +15,7 @@ use gloo_net::http::{Request, Response};
 //     })
 // }
 
-const get_api_base: &str = "https://recruitments-backend-a55x.onrender.com";
+const get_api_base: &str = "http://127.0.0.1:8000";
 
 
 // Change fetch_applicants to return a single Applicant (not Vec<Applicant>)

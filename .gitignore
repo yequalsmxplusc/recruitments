@@ -3,3 +3,5 @@ target/
 bin/
 dist/
 Cargo.lock
+frontend/.env
+backend/.env
