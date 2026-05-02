@@ -103,6 +103,8 @@ async fn parse_response<T: serde::de::DeserializeOwned>(response: Response) -> R
     if response.ok() {
         response.json().await.map_err(|e| e.to_string())
     } else {
-        Err(format!("Server error: {}", response.status_text()))
+        let status = response.status();
+        let text = response.text().await.unwrap_or_else(|_| "Unknown error".to_string());
+        Err(format!("Server error ({}): {}", status, text))
     }
 }

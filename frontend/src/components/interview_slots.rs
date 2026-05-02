@@ -132,7 +132,7 @@ pub fn InterviewSlotBooking(props: &Props) -> Html {
                 }
 
                 {
-                    if let Some(selected_slot) = &props.applicant.interview_slot {
+                    if let Some(selected_slot) = props.applicant.interview_slot.as_deref().filter(|s| !s.is_empty()) {
                         html! {
                             <div class="rounded-md bg-blue-50 p-4 mb-6">
                                 <div class="flex">

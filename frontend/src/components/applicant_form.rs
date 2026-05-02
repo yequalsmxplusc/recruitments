@@ -20,7 +20,7 @@ pub fn ApplicantForm(props: &Props) -> Html {
     let grad_year = {
         let app = applicant.clone();
         Callback::from(move |e: Event| {
-            let input = e.target_unchecked_into::<web_sys::HtmlInputElement>();
+            let input = e.target_unchecked_into::<web_sys::HtmlSelectElement>();
             let mut updated = (*app).clone();
             updated.grad_year = Some(input.value());
             app.set(updated);
@@ -40,7 +40,7 @@ pub fn ApplicantForm(props: &Props) -> Html {
     let gender = {
         let app = applicant.clone();
         Callback::from(move |e: Event| {
-            let input = e.target_unchecked_into::<web_sys::HtmlInputElement>();
+            let input = e.target_unchecked_into::<web_sys::HtmlSelectElement>();
             let mut updated = (*app).clone();
             updated.gender = Some(input.value());
             app.set(updated);
@@ -326,7 +326,7 @@ pub fn ApplicantForm(props: &Props) -> Html {
                         </label>
                         <select
                             id="skill"
-                            required=true
+                            required=false
                             value={applicant.skill.clone().unwrap_or_default()}
                             onchange={skill}
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2"

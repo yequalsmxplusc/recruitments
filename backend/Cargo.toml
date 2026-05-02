@@ -18,3 +18,4 @@ rust-argon2 = "2.1"
 reqwest = { version = "0.13.3", features = ["form", "json", "multipart"] }
 actix-multipart = "0.7.2"
 futures-util = "0.3.32"
+base64 = "0.22"

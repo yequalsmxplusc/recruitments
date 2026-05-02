@@ -33,10 +33,11 @@ async fn main() -> std::io::Result<()> {
     let drive_url = std::env::var("DRIVE_URL").expect("DRIVE_URL must be set");
     let service_account_path = std::env::var("GOOGLE_SERVICE_ACCOUNT_JSON")
         .expect("GOOGLE_SERVICE_ACCOUNT_JSON must be set");
+    let upload_proxy_url = std::env::var("UPLOAD_PROXY_URL").ok();
 
     let auth_config = AuthConfig::new(&jwt_secret, admin_username, admin_password_hash);
     let google_client =
-        google_api::GoogleClient::new(&sheet_url, &drive_url, &service_account_path);
+        google_api::GoogleClient::new(&sheet_url, &drive_url, &service_account_path, upload_proxy_url);
 
     // Load initial data for applicants
     let initial_data = load_applicants(&google_client).await;

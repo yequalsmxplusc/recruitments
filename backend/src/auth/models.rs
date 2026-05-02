@@ -32,7 +32,9 @@ pub struct Applicant {
     pub submission1_url: Option<String>,  // case study 1
     pub submission2_url: Option<String>,  // case study 2 (for skill)
     pub interview_slot: Option<String>,
+    #[serde(rename = "isSelected")]
     pub is_selected: bool,
+    #[serde(rename = "isAdmin")]
     pub is_admin: bool,
     pub status: Option<String>,
     pub round: Option<String>,
@@ -47,6 +49,7 @@ pub struct LoginResponse {
 pub struct InterviewSlot {
     pub date_time: String,
     pub capacity: u32,
+    pub remaining: Option<u32>,
 }
 
 #[derive(Clone)]

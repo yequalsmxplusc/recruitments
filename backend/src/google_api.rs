@@ -31,10 +31,11 @@ pub struct GoogleClient {
     service_account: ServiceAccount,
     sheet_id: String,
     folder_id: String,
+    proxy_url: Option<String>,
 }
 
 impl GoogleClient {
-    pub fn new(sheet_url: &str, drive_url: &str, service_account_path: &str) -> Self {
+    pub fn new(sheet_url: &str, drive_url: &str, service_account_path: &str, proxy_url: Option<String>) -> Self {
         let content =
             fs::read_to_string(service_account_path).expect("Failed to read service account JSON");
         let service_account: ServiceAccount =
@@ -48,6 +49,7 @@ impl GoogleClient {
             service_account,
             sheet_id,
             folder_id,
+            proxy_url,
         }
     }
 
@@ -109,7 +111,15 @@ impl GoogleClient {
             .json::<serde_json::Value>()
             .await?;
 
-        let rows = res["values"].as_array().ok_or("No values in sheet")?;
+        let rows = match res["values"].as_array() {
+            Some(r) => r,
+            None => {
+                let error_msg = res["error"]["message"]
+                    .as_str()
+                    .unwrap_or("No values in sheet and no error message found");
+                return Err(format!("Google Sheets Error: {}", error_msg).into());
+            }
+        };
 
         let mut applicants = Vec::new();
         // Assuming first row is header
@@ -207,7 +217,7 @@ impl GoogleClient {
                         .get(19)
                         .and_then(|v| v.as_str())
                         .map(|s| s.to_string())
-                        .or(Some("Applied".to_string())),
+                        .or(Some("Round 1".to_string())),
                 });
             }
         }
@@ -221,8 +231,43 @@ impl GoogleClient {
         content: Vec<u8>,
         mime_type: &str,
     ) -> Result<String, Box<dyn std::error::Error>> {
+        if let Some(proxy_url) = &self.proxy_url {
+            println!("[DEBUG] Using Apps Script Proxy for upload: {}", proxy_url);
+            use base64::Engine;
+            let b64_content = base64::engine::general_purpose::STANDARD.encode(&content);
+
+            let body = serde_json::json!({
+                "filename": filename,
+                "mimeType": mime_type,
+                "folderId": self.folder_id,
+                "content": b64_content,
+            });
+
+            let res = self
+                .client
+                .post(proxy_url)
+                .json(&body)
+                .send()
+                .await?;
+
+            let status = res.status();
+            let body_text = res.text().await?;
+            let body_json: serde_json::Value = serde_json::from_str(&body_text).map_err(|e| {
+                println!("[DEBUG] Failed to parse proxy response as JSON: {}", body_text);
+                e
+            })?;
+
+            if !status.is_success() || body_json.get("error").is_some() {
+                println!("[DEBUG] Proxy Error ({}): {:?}", status, body_json);
+                return Err(format!("Proxy Error: {}", body_json["error"].as_str().unwrap_or("Unknown error")).into());
+            }
+
+            let url = body_json["url"].as_str().ok_or("Failed to get URL from proxy")?;
+            return Ok(url.to_string());
+        }
+
         let token = self
-            .get_access_token("https://www.googleapis.com/auth/drive.file")
+            .get_access_token("https://www.googleapis.com/auth/drive")
             .await?;
 
         let metadata = serde_json::json!({
@@ -245,15 +290,25 @@ impl GoogleClient {
 
         let res = self
             .client
-            .post("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart")
+            .post("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&supportsAllDrives=true")
             .bearer_auth(token)
             .multipart(form)
             .send()
-            .await?
-            .json::<serde_json::Value>()
             .await?;
 
-        let file_id = res["id"].as_str().ok_or("Failed to get file ID")?;
+        let status = res.status();
+        let body_json = res.json::<serde_json::Value>().await?;
+
+        if !status.is_success() {
+            println!("[DEBUG] Google Drive API Error ({}): {:?}", status, body_json);
+            return Err(format!("Google Drive Error: {}", body_json["error"]["message"].as_str().unwrap_or("Unknown error")).into());
+        }
+
+        let file_id = body_json["id"].as_str().ok_or_else(|| {
+            println!("[DEBUG] Failed to get file ID from response: {:?}", body_json);
+            "Failed to get file ID"
+        })?;
+        
         Ok(format!("https://drive.google.com/file/d/{}/view", file_id))
     }
 
@@ -295,7 +350,12 @@ impl GoogleClient {
             }
         }
 
-        let row_idx = target_row.ok_or("Applicant ID not found in sheet")?;
+        let row_idx = target_row.ok_or_else(|| {
+            println!("[DEBUG] Failed to find Applicant ID '{}' in sheet column A", applicant.id);
+            "Applicant ID not found in sheet"
+        })?;
+
+        println!("[DEBUG] Updating Sheet1 at Row {} for ID {}", row_idx, applicant.id);
 
         let update_url = format!(
             "https://sheets.googleapis.com/v4/spreadsheets/{}/values/Sheet1!A{}:T{}?valueInputOption=USER_ENTERED",
@@ -324,7 +384,7 @@ impl GoogleClient {
             applicant.is_selected.to_string(),
             applicant.is_admin.to_string(),
             applicant.status.clone().unwrap_or_else(|| "In Consideration".to_string()),
-            applicant.round.clone().unwrap_or_else(|| "Applied".to_string()),
+            applicant.round.clone().unwrap_or_else(|| "Round 1".to_string()),
         ]];
 
         let body = serde_json::json!({
@@ -376,7 +436,7 @@ impl GoogleClient {
             applicant.is_selected.to_string(),
             applicant.is_admin.to_string(),
             applicant.status.clone().unwrap_or_else(|| "In Consideration".to_string()),
-            applicant.round.clone().unwrap_or_else(|| "Applied".to_string()),
+            applicant.round.clone().unwrap_or_else(|| "Round 1".to_string()),
         ]];
 
         let body = serde_json::json!({
@@ -511,7 +571,7 @@ mod tests {
             serde_json::json!("2029"),
             serde_json::json!("Slot A"),
             serde_json::json!("FALSE"), // is_admin
-            serde_json::json!("Applied"),
+            serde_json::json!("Round 1"), // round (using index 10 for simplicity in test)
         ];
 
         let applicant = Applicant {
@@ -553,7 +613,7 @@ mod tests {
                 .get(10)
                 .and_then(|v| v.as_str())
                 .map(|s| s.to_string())
-                .or(Some("Applied".to_string())),
+                .or(Some("Round 1".to_string())),
             ..Default::default()
         };
 
@@ -567,6 +627,6 @@ mod tests {
         assert_eq!(applicant.grad_year.as_deref(), Some("2029"));
         assert_eq!(applicant.interview_slot.as_deref(), Some("Slot A"));
         assert!(!applicant.is_admin);
-        assert_eq!(applicant.status.as_deref(), Some("Applied"));
+        assert_eq!(applicant.status.as_deref(), Some("Round 1"));
     }
 }

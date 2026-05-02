@@ -99,12 +99,12 @@ pub fn ApplicantList(props: &Props) -> Html {
                             { for (*applicants).iter().map(|applicant| {
                                 let update_applicant = update_applicant.clone();
                                 let applicant = applicant.clone();
-                                let current_round_str = applicant.round.as_deref().unwrap_or("Applied");
+                                let current_round_str = applicant.round.as_deref().unwrap_or("Round 1");
                                 let is_skill = applicant.skill.as_deref().map_or(false, |s| !s.is_empty());
                                 let stages = if is_skill {
-                                    vec!["Applied", "Case Study 1", "Case Study 2", "Interview"]
+                                    vec!["Round 1", "Case Study 1", "Case Study 2", "Interview"]
                                 } else {
-                                    vec!["Applied", "Case Study 1", "Interview"]
+                                    vec!["Round 1", "Case Study 1", "Interview"]
                                 };
                                 html! {
                                     <tr key={applicant.id.clone()}>
@@ -135,11 +135,11 @@ pub fn ApplicantList(props: &Props) -> Html {
                                                  let update_applicant = update_applicant.clone();
                                                  move |_| {
                                                      let mut updated_applicant = applicant.clone();
-                                                     let current_round = applicant.round.as_deref().unwrap_or("Applied");
+                                                     let current_round = applicant.round.as_deref().unwrap_or("Round 1");
                                                      let is_skill = applicant.skill.as_deref().map_or(false, |s| !s.is_empty());
 
                                                      let next_round = match current_round {
-                                                         "Applied" => "Case Study 1",
+                                                         "Round 1" => "Case Study 1",
                                                          "Case Study 1" => if is_skill { "Case Study 2" } else { "Interview" },
                                                          "Case Study 2" => "Interview",
                                                          _ => current_round, // Reached the end

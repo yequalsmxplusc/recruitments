@@ -20,8 +20,12 @@ pub fn CaseStudySubmission(props: &Props) -> Html {
     let is_skill = props
         .skill
         .as_deref()
-        .map_or(false, |s| !s.is_empty() && s != "non-skill");
+        .map_or(false, |s| {
+            let s = s.to_lowercase();
+            s == "tech" || s == "design"
+        });
     let max_submissions = if is_skill { 2 } else { 1 };
+    let countdown = use_state(|| None::<u32>);
 
     let on_file_select = {
         let file_input = file_input.clone();
@@ -30,6 +34,7 @@ pub fn CaseStudySubmission(props: &Props) -> Html {
         let is_loading = is_loading.clone();
         let token = props.auth.token();
         let active_case_study = active_case_study.clone();
+        let countdown = countdown.clone();
 
         Callback::from(move |_: Event| {
             if *is_loading {
@@ -41,6 +46,7 @@ pub fn CaseStudySubmission(props: &Props) -> Html {
             let success = success.clone();
             let is_loading = is_loading.clone();
             let token = token.clone();
+            let countdown = countdown.clone();
             let case_study = *active_case_study;
 
             let Some(input) = file_input.cast::<web_sys::HtmlInputElement>() else { return; };
@@ -85,6 +91,7 @@ pub fn CaseStudySubmission(props: &Props) -> Html {
                             case_study
                         )));
                         is_loading.set(false);
+                        countdown.set(Some(5));
                     }
                     Err(e) => {
                         error.set(Some(e));
@@ -101,6 +108,24 @@ pub fn CaseStudySubmission(props: &Props) -> Html {
             active.set(case);
         })
     };
+
+    {
+        let countdown = countdown.clone();
+        use_effect_with(countdown.clone(), move |count| {
+            let mut timeout = None;
+            if let Some(c) = **count {
+                if c > 0 {
+                    let countdown = countdown.clone();
+                    timeout = Some(gloo_timers::callback::Timeout::new(1000, move || {
+                        countdown.set(Some(c - 1));
+                    }));
+                } else {
+                    web_sys::window().unwrap().location().reload().unwrap();
+                }
+            }
+            move || { drop(timeout); }
+        });
+    }
 
     html! {
         <div class="bg-white shadow sm:rounded-lg mt-6">
@@ -136,7 +161,16 @@ pub fn CaseStudySubmission(props: &Props) -> Html {
                     if let Some(msg) = &*success {
                         html! {
                             <div class="rounded-md bg-green-50 p-4 mb-4">
-                                <div class="text-green-700">{ msg }</div>
+                                <div class="text-green-700">
+                                    { msg }
+                                    {
+                                        if let Some(c) = *countdown {
+                                            format!(" Refreshing in {} seconds...", c)
+                                        } else {
+                                            "".to_string()
+                                        }
+                                    }
+                                </div>
                             </div>
                         }
                     } else {
@@ -208,7 +242,7 @@ pub fn CaseStudySubmission(props: &Props) -> Html {
                                                 { format!("Case Study {}", i) }
                                             </h4>
                                             {
-                                                if let Some(url) = submission_url {
+                                                if let Some(url) = submission_url.filter(|s| !s.is_empty()) {
                                                     html! {
                                                         <div class="mt-2">
                                                             <p class="text-sm text-gray-600">

@@ -67,8 +67,15 @@ pub async fn get_applicant(
     };
 
     let user_id = &decoded.claims.sub;
-    let applicants = data.applicants.lock().unwrap();
 
+    // Re-fetch from Google Sheets to ensure fresh data
+    let fresh_applicants = load_applicants(&data.google_client).await;
+    {
+        let mut applicants = data.applicants.lock().unwrap();
+        *applicants = fresh_applicants;
+    }
+
+    let applicants = data.applicants.lock().unwrap();
     // Match either by ID or email (as used during login)
     if let Some(applicant) = applicants
         .iter()
@@ -100,7 +107,10 @@ pub async fn get_all_applicants(
             if !token_data.claims.is_admin {
                 return HttpResponse::Unauthorized().body("Admin access required");
             } else {
-                let applicants = data.applicants.lock().unwrap();
+                // Re-fetch from Google Sheets for the admin list
+                let fresh_applicants = load_applicants(&data.google_client).await;
+                let mut applicants = data.applicants.lock().unwrap();
+                *applicants = fresh_applicants;
                 return HttpResponse::Ok().json(applicants.clone());
             }
         }
@@ -134,30 +144,32 @@ pub async fn update_applicant(
     let is_admin = decoded.claims.is_admin;
     let user_id = &decoded.claims.sub;
     let update = patch.into_inner();
-    
+    println!("[DEBUG] PATCH Request for ID: {} from User: {} (Admin: {})", id, user_id, is_admin);
+    println!("[DEBUG] Update Body: {:?}", update);
+
     // Security check: Prevent non-admins from updating other users
     if !is_admin && user_id != &id && user_id != &update.email {
         return HttpResponse::Forbidden().body("You can only modify your own profile");
     }
 
-    // Validation
+    // Validation - only if non-empty
     if let Some(mobile) = &update.mobile {
-        if mobile.len() != 10 || !mobile.chars().all(|c| c.is_numeric()) {
+        if !mobile.is_empty() && (mobile.len() != 10 || !mobile.chars().all(|c| c.is_numeric())) {
             return HttpResponse::BadRequest().body("Mobile must be 10 digits");
         }
     }
     if let Some(why_apply) = &update.why_apply {
-        if why_apply.split_whitespace().count() > 150 {
+        if !why_apply.is_empty() && why_apply.split_whitespace().count() > 150 {
             return HttpResponse::BadRequest().body("Why apply must be 150 words or less");
         }
     }
     if let Some(event_experience) = &update.event_experience {
-        if event_experience.split_whitespace().count() > 50 {
+        if !event_experience.is_empty() && event_experience.split_whitespace().count() > 50 {
             return HttpResponse::BadRequest().body("Event experience must be 50 words or less");
         }
     }
     if let Some(grad_year) = &update.grad_year {
-        if grad_year != "2028" && grad_year != "2029" {
+        if !grad_year.is_empty() && grad_year != "2028" && grad_year != "2029" {
             return HttpResponse::BadRequest().body("Grad year must be 2028 or 2029");
         }
     }
@@ -172,11 +184,24 @@ pub async fn update_applicant(
             return HttpResponse::BadRequest().body("Slot is full");
         }
     }
+    // Re-fetch from Google Sheets before update to ensure IDs are in sync
+    let fresh_applicants = load_applicants(&data.google_client).await;
+    {
+        let mut applicants = data.applicants.lock().unwrap();
+        *applicants = fresh_applicants;
+    }
+
     // Lock, modify, and release the lock before any .await
     let (updated_applicant, is_new) = {
         let mut applicants = data.applicants.lock().unwrap();
-        if let Some(applicant) = applicants.iter_mut().find(|a| a.id == id) {
-            println!("Applicant found: {}", applicant.id);
+        if let Some(applicant) = applicants.iter_mut().find(|a| a.id == id || a.email == id) {
+            println!(
+                "[DEBUG] Updating Applicant: {} (Email: {})",
+                applicant.id, applicant.email
+            );
+            if let Some(password) = update.password {
+                applicant.password = password;
+            }
             if let Some(grad_year) = update.grad_year {
                 applicant.grad_year = Some(grad_year);
             }
@@ -228,10 +253,17 @@ pub async fn update_applicant(
                     applicant.status = Some(status);
                 }
             }
+            if applicant.status.as_deref().map_or(true, |s| s.is_empty()) {
+                applicant.status = Some("In Consideration".to_string());
+            }
+
             if let Some(round) = update.round {
                 if is_admin {
                     applicant.round = Some(round);
                 }
+            }
+            if applicant.round.as_deref().map_or(true, |s| s.is_empty()) {
+                applicant.round = Some("Round 1".to_string());
             }
             (Some(applicant.clone()), false)
         } else {
@@ -258,8 +290,11 @@ pub async fn update_applicant(
                 interview_slot: update.interview_slot.clone(),
                 is_selected: update.is_selected.unwrap_or(false),
                 is_admin: update.is_admin.unwrap_or(false),
-                status: update.status.clone().or(Some("In Consideration".to_string())),
-                round: update.round.clone().or(Some("Applied".to_string())),
+                status: update
+                    .status
+                    .clone()
+                    .or(Some("In Consideration".to_string())),
+                round: update.round.clone().or(Some("Round 1".to_string())),
             };
             applicants.push(new_applicant.clone());
             (Some(new_applicant), true)
@@ -269,11 +304,14 @@ pub async fn update_applicant(
     match updated_applicant {
         Some(applicant) => {
             let result = if is_new {
+                println!("[DEBUG] Appending new applicant to sheet");
                 data.google_client.append_applicant_row(&applicant).await
             } else {
+                println!("[DEBUG] Updating existing applicant row in sheet");
                 data.google_client.update_applicant_row(&applicant).await
             };
             if let Err(e) = result {
+                println!("[DEBUG] Google Sheets Error: {}", e);
                 return HttpResponse::InternalServerError().json(e.to_string());
             }
             HttpResponse::Ok().json(applicant)
@@ -322,7 +360,8 @@ pub async fn submit_file(
     let applicant = applicant.unwrap();
 
     // Check if skill applicant (has skill field set)
-    let is_skill = applicant.skill.as_deref().map_or(false, |s| !s.is_empty());
+    let skill_val = applicant.skill.as_deref().unwrap_or("").to_lowercase();
+    let is_skill = skill_val == "tech" || skill_val == "design";
     let max_submissions = if is_skill { 2 } else { 1 };
     if case_study > max_submissions {
         return HttpResponse::BadRequest().body(format!(
@@ -350,9 +389,23 @@ pub async fn submit_file(
             }
         }
 
+        let ext = if filename.contains('.') && filename != "blob" && filename != "unknown" {
+            filename.split('.').last().unwrap_or("pdf")
+        } else {
+            match mime_type.as_str() {
+                "application/pdf" => "pdf",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => "docx",
+                "application/vnd.openxmlformats-officedocument.presentationml.presentation" => "pptx",
+                "application/msword" => "doc",
+                "application/vnd.ms-powerpoint" => "ppt",
+                _ => "pdf",
+            }
+        };
+        let user_filename = format!("{}-{}.{}", applicant.email, case_study, ext);
+
         match data
             .google_client
-            .upload_file(&filename, body, &mime_type)
+            .upload_file(&user_filename, body, &mime_type)
             .await
         {
             Ok(url) => {
@@ -364,15 +417,19 @@ pub async fn submit_file(
                 }
                 // Update in Sheets
                 if let Err(e) = data.google_client.update_applicant_row(applicant).await {
+                    println!("[DEBUG] Sheet update error: {}", e);
                     return HttpResponse::InternalServerError().body(e.to_string());
                 }
                 return HttpResponse::Ok().json(serde_json::json!({
                     "status": "success",
                     "file_url": url,
-                    "message": format!("Case study {} uploaded successfully for {}", case_study, user_id)
+                    "message": format!("Case study {} uploaded successfully for {}", case_study, applicant.email)
                 }));
             }
-            Err(e) => return HttpResponse::InternalServerError().body(e.to_string()),
+            Err(e) => {
+                println!("[DEBUG] Upload error: {}", e);
+                return HttpResponse::InternalServerError().body(e.to_string());
+            }
         }
     }
 
@@ -390,14 +447,17 @@ pub async fn get_available_slots(data: web::Data<AppState>) -> impl Responder {
         InterviewSlot {
             date_time: "2026-05-10T10:00:00Z".to_string(),
             capacity: 60,
+            remaining: None,
         },
         InterviewSlot {
             date_time: "2026-05-10T14:00:00Z".to_string(),
             capacity: 60,
+            remaining: None,
         },
         InterviewSlot {
             date_time: "2026-05-11T10:00:00Z".to_string(),
             capacity: 60,
+            remaining: None,
         },
         // Add more as needed
     ];
@@ -405,16 +465,14 @@ pub async fn get_available_slots(data: web::Data<AppState>) -> impl Responder {
     let applicants = data.applicants.lock().unwrap();
     let mut available_slots = Vec::new();
 
-    for slot in predefined_slots {
+    for mut slot in predefined_slots {
         let booked = applicants
             .iter()
             .filter(|a| a.interview_slot.as_deref() == Some(&slot.date_time))
             .count() as u32;
         if booked < slot.capacity {
-            available_slots.push(serde_json::json!({
-                "date_time": slot.date_time,
-                "remaining_capacity": slot.capacity - booked
-            }));
+            slot.remaining = Some(slot.capacity - booked);
+            available_slots.push(slot);
         }
     }
 
