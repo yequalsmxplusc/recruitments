@@ -15,8 +15,17 @@ web-sys = { version = "0.3", features = [
     "Window", 
     "HtmlInputElement", 
     "Storage",
-    "console"
+    "console",
+    "HtmlSelectElement",
+    "HtmlTextAreaElement",
+    "FormData",
+    "Blob",
+    "BlobPropertyBag",
+    "File",
+    "FileList"
 ] }
 uuid = { version = "1.0", features = ["v4", "wasm-bindgen"] }
 gloo-storage = "0.3"
-serde_json= "1.0"
+serde_json = "1.0"
+gloo-file = "0.3"
+js-sys = "0.3.97"

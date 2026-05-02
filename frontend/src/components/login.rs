@@ -36,7 +36,7 @@ pub fn Login(props: &Props) -> Html {
             let auth = auth.clone();
 
             wasm_bindgen_futures::spawn_local(async move {
-                match Request::post(&format!("http://127.0.0.1:8000/login"))
+                match Request::post(&format!("{}/login", crate::services::api::get_api_base()))
                     .json(&json!({
                         "username": username_val,
                         "password": password_val,

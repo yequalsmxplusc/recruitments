@@ -1,31 +1,26 @@
-use actix_web::{post, web, HttpResponse, Responder};
-use jsonwebtoken::{encode, Header};
+use super::models::{AuthConfig, Claims, LoginRequest, LoginResponse};
+use crate::applicants::service::AppState;
+use actix_web::{HttpResponse, Responder, post, web};
 use chrono::Utc;
-use std::fs;
-use super::models::{LoginRequest, LoginResponse, Claims, AuthConfig, Applicant};
+use jsonwebtoken::{Header, encode};
 
 /**
- * REQ: GET /login
+ * REQ: POST /login
  * RES: JWT Token Bearer <your_jwt_token>
  */
 #[post("/login")]
 pub async fn login(
     credentials: web::Json<LoginRequest>,
     auth_config: web::Data<AuthConfig>,
+    data: web::Data<AppState>,
 ) -> impl Responder {
-    // println!("Attempting to read data.json file...");
-
-    // Load applicants data from data.json
-    let applicants_data = fs::read_to_string("data/data.json")
-        .expect("Unable to read file");
-    // println!("File read successfully. Data: {}", applicants_data);
-
-    let applicants: Vec<Applicant> = serde_json::from_str(&applicants_data).unwrap_or_default();
-    // println!("Deserialized applicants: {:?}", applicants);
+    // Read applicants from in-memory state (loaded from Google Sheets at startup)
+    let applicants = data.applicants.lock().unwrap();
 
     // Check if the provided credentials match any applicant
-    let applicant = applicants.iter().find(|a: &&Applicant| a.id == credentials.username || a.email == credentials.username);
-    // println!("Searching for applicant with username: {}", credentials.username);
+    let applicant = applicants
+        .iter()
+        .find(|a| a.id == credentials.username || a.email == credentials.username);
 
     if let Some(applicant) = applicant {
         // println!("Applicant found: {:?}", applicant);
@@ -46,11 +41,7 @@ pub async fn login(
             is_admin: applicant.is_admin,
         };
 
-        let token = encode(
-            &Header::default(),
-            &claims,
-            &auth_config.encoding_key,
-        ).unwrap();
+        let token = encode(&Header::default(), &claims, &auth_config.encoding_key).unwrap();
 
         HttpResponse::Ok().json(LoginResponse { token })
     } else {

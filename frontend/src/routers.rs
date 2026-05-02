@@ -1,8 +1,9 @@
 use yew::prelude::*;
-use yew_router::{navigator, prelude::*};
+use yew_router::prelude::*;
 use crate::components::login::Login;
 use crate::components::applicant_list::ApplicantList;
 use crate::components::dashboard::Dashboard;
+use crate::components::rounds::Rounds;
 use crate::components::reset::Reset;
 use crate::auth::context::AuthContextHandle;
 
@@ -19,6 +20,8 @@ pub enum Route {
     NotFound,
     #[at("/reset")]
     Reset,
+    #[at("/rounds")]
+    Rounds,
 }
 
 pub fn switch(routes: Route, auth: AuthContextHandle) -> Html {
@@ -54,6 +57,13 @@ pub fn switch(routes: Route, auth: AuthContextHandle) -> Html {
                 html! { <Redirect<Route> to={Route::Login} /> }
             } else {
                 html! {<Reset auth={auth} /> } 
+            }
+        }
+        Route::Rounds => {
+            if !auth.is_authenticated() {
+                html! { <Redirect<Route> to={Route::Login} /> }
+            } else {
+                html! { <Rounds auth={auth} /> }
             }
         }
     }

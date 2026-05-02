@@ -34,7 +34,7 @@ pub fn reset(props: &Props) -> Html {
                 match api::fetch_applicant(token.clone()).await {
                     Ok(mut applicant) => {
                         applicant.password = password.clone(); // ensure backend allows this
-                        applicant.contact_number = contact.clone();
+                        applicant.mobile = Some(contact.clone());
 
                         match api::update_applicant(&applicant, token).await {
                             Ok(_) => message.set(Some("Details updated successfully.".into())),

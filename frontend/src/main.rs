@@ -12,6 +12,10 @@ mod components{
     pub mod reset;
     pub mod header;
     pub mod footer;
+    pub mod applicant_form;
+    pub mod case_study;
+    pub mod interview_slots;
+    pub mod rounds;
 }
 mod models{
     pub mod applicant;

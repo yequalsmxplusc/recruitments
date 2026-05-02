@@ -1,5 +1,5 @@
+use jsonwebtoken::{DecodingKey, EncodingKey};
 use serde::{Deserialize, Serialize};
-use jsonwebtoken::{EncodingKey, DecodingKey};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {
@@ -14,26 +14,39 @@ pub struct LoginRequest {
     pub password: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Applicant {
     pub id: String,
     pub name: String,
     pub email: String,
     pub password: String,
-    pub contact_number: String,
-    #[serde(rename = "isSelected")]
+    pub grad_year: Option<String>, // 2028 or 2029
+    pub mobile: Option<String>,    // 10-digit
+    pub gender: Option<String>,
+    pub faculty: Option<String>,                  // arts/science/engineering/ISLM
+    pub department: Option<String>,               // based on faculty
+    pub skill: Option<String>,                    // design/tech variants
+    pub event_participation: Option<bool>,        // yes/no
+    pub why_apply: Option<String>,                // 150 words
+    pub event_experience: Option<String>, // 50 words if yes
+    pub submission1_url: Option<String>,  // case study 1
+    pub submission2_url: Option<String>,  // case study 2 (for skill)
+    pub interview_slot: Option<String>,
     pub is_selected: bool,
-    pub department: String,
-    pub year: String,
-    pub interview_slot: String,
-    #[serde(rename = "isAdmin")]
     pub is_admin: bool,
-    pub status: String,
+    pub status: Option<String>,
+    pub round: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
 pub struct LoginResponse {
     pub token: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct InterviewSlot {
+    pub date_time: String,
+    pub capacity: u32,
 }
 
 #[derive(Clone)]
