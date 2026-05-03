@@ -7,8 +7,11 @@ on:
     branches: ["main"]
 
 jobs:
+  # ─────────────────────────────────────────────────────────────
+  # 1. BACKEND — build, test, deploy to Render (free tier)
+  # ─────────────────────────────────────────────────────────────
   backend:
-    name: Backend – Build & Test
+    name: Backend – Build, Test & Deploy
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -20,7 +23,6 @@ jobs:
       - name: Install stable Rust toolchain
         uses: dtolnay/rust-toolchain@stable
 
-      # Cache ~/.cargo/registry, ~/.cargo/git, and the target dir
       - name: Cache Cargo dependencies
         uses: actions/cache@v4
         with:
@@ -35,23 +37,41 @@ jobs:
       - name: Build (release)
         run: cargo build --release --verbose
 
-      # Unit tests in google_api.rs do not hit the network and need no env vars.
-      # Integration/service tests that require JWT_SECRET etc. are excluded here
-      # because secrets are not available on PRs from forks.
+      # Only pure unit tests — no network, no env vars required.
+      # google_api.rs tests (extract_id, boolean parsing) qualify.
       - name: Run unit tests
         run: cargo test --verbose -- --test-output immediate
 
+      # Deploy to Render by hitting its deploy hook URL.
+      # Render will pull main, run `cargo build --release` via its build command,
+      # and restart the service. Only runs on push to main (not PRs).
+      #
+      # Setup:
+      #   Render dashboard → your service → Settings → Deploy Hook → copy URL
+      #   GitHub → repo Settings → Secrets → RENDER_DEPLOY_HOOK_URL = that URL
+      - name: Trigger Render deploy
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          curl -fsSL "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" \
+            -X POST \
+            --retry 3 \
+            --retry-delay 5
+
+  # ─────────────────────────────────────────────────────────────
+  # 2. FRONTEND — WASM build, deploy to Vercel
+  # ─────────────────────────────────────────────────────────────
   frontend:
-    name: Frontend – Build (WASM)
+    name: Frontend – Build (WASM) & Deploy
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: frontend
 
     env:
-      # Required by Trunk.toml at compile time (option_env! won't panic without
-      # it, but trunk will fail if API_BASE is marked required=true)
-      API_BASE: http://127.0.0.1:8000
+      # Baked into the WASM binary at compile time via option_env!
+      # Set API_BASE in GitHub Secrets to your live Render backend URL.
+      # Falls back to localhost only for PRs where the secret may not be set.
+      API_BASE: ${{ secrets.API_BASE }}
 
     steps:
       - uses: actions/checkout@v4
@@ -72,18 +92,43 @@ jobs:
           restore-keys: |
             frontend-${{ runner.os }}-cargo-
 
-      # Install trunk from the pre-built binary — much faster than cargo install
+      # Pre-built binary — avoids compiling trunk itself (~3 min)
       - name: Install trunk
         uses: jetli/trunk-action@v0.5.0
         with:
           version: latest
 
-      # cargo check targeting wasm32 catches type/import errors without a full
-      # trunk build (trunk build --release takes 5-10 min on a cold runner)
+      # Fast compile-error gate. Catches type errors, missing imports, etc.
+      # Does NOT produce output files — trunk build below does that.
       - name: Check WASM compilation
         run: cargo check --target wasm32-unknown-unknown --verbose
 
-      # Full release build — comment this out if CI minutes are tight;
-      # the check step above already catches compile errors.
+      # Full release build producing the dist/ folder Vercel will serve.
+      # Copies index.html → 404.html for SPA deep-link refresh (matches build.sh).
       - name: Build (release via trunk)
-        run: trunk build --release --public-url "/"
+        run: |
+          trunk build --release --public-url "/"
+          cp dist/index.html dist/404.html
+
+      # Deploy dist/ to Vercel.
+      #
+      # Setup (one-time, on your machine):
+      #   npm i -g vercel
+      #   vercel login
+      #   cd frontend && vercel link    ← creates .vercel/project.json
+      #
+      # GitHub Secrets required:
+      #   VERCEL_TOKEN      — vercel.com → Account Settings → Tokens
+      #   VERCEL_ORG_ID     — .vercel/project.json "orgId"
+      #   VERCEL_PROJECT_ID — .vercel/project.json "projectId"
+      #
+      # PRs get a Vercel preview URL automatically.
+      # Only pushes to main deploy to production (--prod flag).
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: frontend/dist
+          vercel-args: ${{ github.ref == 'refs/heads/main' && '--prod' || '' }}
