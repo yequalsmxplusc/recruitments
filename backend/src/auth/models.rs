@@ -56,17 +56,13 @@ pub struct InterviewSlot {
 pub struct AuthConfig {
     pub encoding_key: EncodingKey,
     pub decoding_key: DecodingKey,
-    pub admin_username: String,
-    pub admin_password_hash: String,
 }
 
 impl AuthConfig {
-    pub fn new(secret: &str, username: String, password_hash: String) -> Self {
+    pub fn new(secret: &str) -> Self {
         Self {
             encoding_key: EncodingKey::from_secret(secret.as_ref()),
             decoding_key: DecodingKey::from_secret(secret.as_ref()),
-            admin_username: username,
-            admin_password_hash: password_hash,
         }
     }
 }

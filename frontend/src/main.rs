@@ -28,7 +28,6 @@ mod services{
 }
 mod auth{
     pub mod context;
-    pub mod models;
 }
 mod utils{}
 mod theme;

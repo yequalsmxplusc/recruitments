@@ -23,9 +23,6 @@ async fn main() -> std::io::Result<()> {
 
     // Get the environment variables
     let jwt_secret = std::env::var("JWT_SECRET").expect("JWT_SECRET must be set");
-    let admin_username = std::env::var("ADMIN_USERNAME").expect("ADMIN_USERNAME must be set");
-    let admin_password_hash =
-        std::env::var("ADMIN_PASSWORD_HASH").expect("ADMIN_PASSWORD_HASH must be set");
     let frontend_url = std::env::var("FRONTEND_URL").expect("FRONTEND_URL must be set");
     let frontend_url_prod =
         std::env::var("FRONTEND_URL_PROD").expect("FRONTEND_URL_PROD must be set");
@@ -35,7 +32,7 @@ async fn main() -> std::io::Result<()> {
         .expect("GOOGLE_SERVICE_ACCOUNT_JSON must be set");
     let upload_proxy_url = std::env::var("UPLOAD_PROXY_URL").ok();
 
-    let auth_config = AuthConfig::new(&jwt_secret, admin_username, admin_password_hash);
+    let auth_config = AuthConfig::new(&jwt_secret);
     let google_client =
         google_api::GoogleClient::new(&sheet_url, &drive_url, &service_account_path, upload_proxy_url);
 

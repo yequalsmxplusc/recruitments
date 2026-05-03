@@ -72,11 +72,11 @@ pub fn Login(props: &Props) -> Html {
                       {
                           if theme.is_dark() {
                               html! {
-                                  <img src="/static/assets/ecell-w.png" alt="JUECell Logo Dark" class="h-84 w-84 object-contain mb-8" />
+                                  <img src="/static/assets/ecell-w.png" alt="JUECell Logo Dark" class="h-54 w-84 object-contain mb-8" />
                               }
                           } else {
                               html! {
-                                  <img src="/static/assets/ecell.png" alt="JUECell Logo" class="h-84 w-84 object-contain mb-8" />
+                                  <img src="/static/assets/ecell.png" alt="JUECell Logo" class="h-54 w-84 object-contain mb-8" />
                               }
                           }
                       }
