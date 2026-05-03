@@ -1,0 +1,89 @@
+name: Rust CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  backend:
+    name: Backend – Build & Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install stable Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      # Cache ~/.cargo/registry, ~/.cargo/git, and the target dir
+      - name: Cache Cargo dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            backend/target
+          key: backend-${{ runner.os }}-cargo-${{ hashFiles('backend/Cargo.toml') }}
+          restore-keys: |
+            backend-${{ runner.os }}-cargo-
+
+      - name: Build (release)
+        run: cargo build --release --verbose
+
+      # Unit tests in google_api.rs do not hit the network and need no env vars.
+      # Integration/service tests that require JWT_SECRET etc. are excluded here
+      # because secrets are not available on PRs from forks.
+      - name: Run unit tests
+        run: cargo test --verbose -- --test-output immediate
+
+  frontend:
+    name: Frontend – Build (WASM)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    env:
+      # Required by Trunk.toml at compile time (option_env! won't panic without
+      # it, but trunk will fail if API_BASE is marked required=true)
+      API_BASE: http://127.0.0.1:8000
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install stable Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Cache Cargo dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            frontend/target
+          key: frontend-${{ runner.os }}-cargo-${{ hashFiles('frontend/Cargo.toml') }}
+          restore-keys: |
+            frontend-${{ runner.os }}-cargo-
+
+      # Install trunk from the pre-built binary — much faster than cargo install
+      - name: Install trunk
+        uses: jetli/trunk-action@v0.5.0
+        with:
+          version: latest
+
+      # cargo check targeting wasm32 catches type/import errors without a full
+      # trunk build (trunk build --release takes 5-10 min on a cold runner)
+      - name: Check WASM compilation
+        run: cargo check --target wasm32-unknown-unknown --verbose
+
+      # Full release build — comment this out if CI minutes are tight;
+      # the check step above already catches compile errors.
+      - name: Build (release via trunk)
+        run: trunk build --release --public-url "/"
