@@ -4,6 +4,7 @@ use crate::components::case_study::CaseStudySubmission;
 use crate::components::footer::Footer;
 use crate::components::header::Header;
 use crate::components::interview_slots::InterviewSlotBooking;
+use crate::components::process_overview::ProcessOverview;
 use crate::models::applicant::Applicant;
 use crate::services::api;
 use yew::prelude::*;
@@ -79,9 +80,12 @@ pub fn rounds(props: &Props) -> Html {
                                             && app.grad_year.as_deref().map_or(false, |s| !s.is_empty());
                                         if has_details {
                                             html! {
+                                                <>
                                                 <div class="p-6 text-center text-lg text-green-600 dark:text-green-400 font-semibold bg-green-500/20 rounded-lg">
                                                     { "✓ Application Form Submitted successfully!" }
-                                                </div>
+                                                </div><br/>
+                                                <ProcessOverview/>
+                                                </>
                                             }
                                         } else {
                                             html! {
@@ -96,9 +100,12 @@ pub fn rounds(props: &Props) -> Html {
                                     "Case Study 1" => {
                                         if app.submission1_url.as_deref().map_or(false, |s| !s.is_empty()) {
                                             html! {
+                                                <>
                                                 <div class="p-6 text-center text-lg text-green-600 dark:text-green-400 font-semibold bg-green-500/20 rounded-lg">
                                                     { "✓ Case Study 1 submitted successfully!" }
-                                                </div>
+                                                </div><br/>
+                                                <ProcessOverview/>
+                                                </>
                                             }
                                         } else {
                                             html! {
@@ -114,9 +121,12 @@ pub fn rounds(props: &Props) -> Html {
                                     "Case Study 2" => {
                                         if app.submission2_url.as_deref().map_or(false, |s| !s.is_empty()) {
                                             html! {
+                                                <>
                                                 <div class="p-6 text-center text-lg text-green-600 dark:text-green-400 font-semibold bg-green-500/20 rounded-lg">
                                                     { "✓ Case Study 2 submitted successfully!" }
-                                                </div>
+                                                </div><br/>
+                                                <ProcessOverview/>
+                                                </>
                                             }
                                         } else {
                                             html! {
@@ -148,9 +158,12 @@ pub fn rounds(props: &Props) -> Html {
                                     },
                                     _ => {
                                         html! {
+                                            <>
                                             <div class="p-6 text-center text-lg theme-text-primary font-semibold opacity-75">
                                                 { "Your application has been processed. Please wait for further updates." }
-                                            </div>
+                                            </div><br/>
+                                            <ProcessOverview />
+                                            </>
                                         }
                                     }
                                 }
@@ -162,6 +175,7 @@ pub fn rounds(props: &Props) -> Html {
                 }
             }
             </div>
+            <br/>
             <Footer/>
         </div>
         </>

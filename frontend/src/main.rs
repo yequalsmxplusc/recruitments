@@ -10,6 +10,8 @@ mod routers;
 mod components{
     pub mod login;
     pub mod applicant_list;
+    pub mod admin_dashboard;  
+    pub mod process_overview;
     pub mod dashboard;
     pub mod reset;
     pub mod header;
