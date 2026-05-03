@@ -48,8 +48,14 @@ pub fn switch(routes: Route, auth: AuthContextHandle) -> Html {
             }
         }
         Route::NotFound => html! {
-            <div class="flex items-center justify-center h-screen bg-gray-100 dark:bg-gray-900">
-                <h1 class="text-4xl font-bold text-gray-800 dark:text-white">{ "404 Not Found" }</h1>
+            <div class="flex items-center justify-center h-screen theme-wrapper">
+                <div class="text-center">
+                    <h1 class="text-6xl font-bold theme-text-primary mb-4">{ "404" }</h1>
+                    <p class="text-2xl theme-text-primary opacity-75 mb-6">{ "Page Not Found" }</p>
+                    <Link<Route> to={Route::Home} classes="bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg transition-colors duration-200 inline-block">
+                        { "Return to Home" }
+                    </Link<Route>>
+                </div>
             </div>
         },
         Route::Reset=> {

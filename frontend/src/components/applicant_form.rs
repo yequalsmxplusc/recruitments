@@ -192,12 +192,12 @@ pub fn ApplicantForm(props: &Props) -> Html {
         .unwrap_or_default();
 
     html! {
-        <div class="bg-white shadow sm:rounded-lg">
-            <div class="px-4 py-5 sm:px-6">
-                <h3 class="text-lg font-medium leading-6 text-gray-900">
+        <div class="glass-card rounded-2xl overflow-hidden">
+            <div class="px-4 py-5 sm:px-6 border-b">
+                <h3 class="text-lg font-medium leading-6 theme-text-primary">
                     { "Application Details" }
                 </h3>
-                <p class="mt-1 text-sm text-gray-500">
+                <p class="mt-1 text-sm opacity-75">
                     { "Fill in your information to complete your application." }
                 </p>
             </div>
@@ -206,8 +206,8 @@ pub fn ApplicantForm(props: &Props) -> Html {
                 {
                     if let Some(err) = &*error {
                         html! {
-                            <div class="rounded-md bg-red-50 p-4">
-                                <div class="text-red-700">{ err }</div>
+                            <div class="rounded-lg bg-red-500/20 border border-red-500 p-4">
+                                <div class="text-red-600 dark:text-red-400">{ err }</div>
                             </div>
                         }
                     } else {
@@ -218,8 +218,8 @@ pub fn ApplicantForm(props: &Props) -> Html {
                 {
                     if let Some(msg) = &*success {
                         html! {
-                            <div class="rounded-md bg-green-50 p-4">
-                                <div class="text-green-700">{ msg }</div>
+                            <div class="rounded-lg bg-green-500/20 border border-green-500 p-4">
+                                <div class="text-green-600 dark:text-green-400">{ msg }</div>
                             </div>
                         }
                     } else {
@@ -229,7 +229,7 @@ pub fn ApplicantForm(props: &Props) -> Html {
 
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
-                        <label for="grad_year" class="block text-sm font-medium text-gray-700">
+                        <label for="grad_year" class="block text-sm font-medium theme-text-primary mb-2">
                             { "Graduation Year" }
                         </label>
                         <select
@@ -237,7 +237,7 @@ pub fn ApplicantForm(props: &Props) -> Html {
                             required=true
                             value={applicant.grad_year.clone().unwrap_or_default()}
                             onchange={grad_year}
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2"
+                            class="theme-input mt-1 block w-full rounded-lg border p-2 text-sm"
                         >
                             <option value="">{ "Select graduation year" }</option>
                             <option value="2028">{ "2028" }</option>
@@ -246,7 +246,7 @@ pub fn ApplicantForm(props: &Props) -> Html {
                     </div>
 
                     <div>
-                        <label for="mobile" class="block text-sm font-medium text-gray-700">
+                        <label for="mobile" class="block text-sm font-medium theme-text-primary mb-2">
                             { "Mobile (10-digit)" }
                         </label>
                         <input
@@ -256,13 +256,13 @@ pub fn ApplicantForm(props: &Props) -> Html {
                             maxlength="10"
                             value={applicant.mobile.clone().unwrap_or_default()}
                             oninput={mobile}
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2"
+                            class="theme-input mt-1 block w-full rounded-lg border p-2 text-sm"
                             placeholder="1234567890"
                         />
                     </div>
 
                     <div>
-                        <label for="gender" class="block text-sm font-medium text-gray-700">
+                        <label for="gender" class="block text-sm font-medium theme-text-primary mb-2">
                             { "Gender" }
                         </label>
                         <select
@@ -270,7 +270,7 @@ pub fn ApplicantForm(props: &Props) -> Html {
                             required=true
                             value={applicant.gender.clone().unwrap_or_default()}
                             onchange={gender}
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2"
+                            class="theme-input mt-1 block w-full rounded-lg border p-2 text-sm"
                         >
                             <option value="">{ "Select gender" }</option>
                             <option value="Male">{ "Male" }</option>
@@ -280,7 +280,7 @@ pub fn ApplicantForm(props: &Props) -> Html {
                     </div>
 
                     <div>
-                        <label for="faculty" class="block text-sm font-medium text-gray-700">
+                        <label for="faculty" class="block text-sm font-medium theme-text-primary mb-2">
                             { "Faculty" }
                         </label>
                         <select
@@ -288,7 +288,7 @@ pub fn ApplicantForm(props: &Props) -> Html {
                             required=true
                             value={applicant.faculty.clone().unwrap_or_default()}
                             onchange={faculty}
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2"
+                            class="theme-input mt-1 block w-full rounded-lg border p-2 text-sm"
                         >
                             <option value="">{ "Select faculty" }</option>
                             <option value="arts">{ "Arts" }</option>
@@ -299,7 +299,7 @@ pub fn ApplicantForm(props: &Props) -> Html {
                     </div>
 
                     <div>
-                        <label for="department" class="block text-sm font-medium text-gray-700">
+                        <label for="department" class="block text-sm font-medium theme-text-primary mb-2">
                             { "Department" }
                         </label>
                         <select
@@ -307,7 +307,7 @@ pub fn ApplicantForm(props: &Props) -> Html {
                             required=true
                             value={applicant.department.clone().unwrap_or_default()}
                             onchange={department}
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2"
+                            class="theme-input mt-1 block w-full rounded-lg border p-2 text-sm"
                         >
                             <option value="">{ "Select department" }</option>
                             {
@@ -321,7 +321,7 @@ pub fn ApplicantForm(props: &Props) -> Html {
                     </div>
 
                     <div>
-                        <label for="skill" class="block text-sm font-medium text-gray-700">
+                        <label for="skill" class="block text-sm font-medium theme-text-primary mb-2">
                             { "Skill" }
                         </label>
                         <select
@@ -329,7 +329,7 @@ pub fn ApplicantForm(props: &Props) -> Html {
                             required=false
                             value={applicant.skill.clone().unwrap_or_default()}
                             onchange={skill}
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2"
+                            class="theme-input mt-1 block w-full rounded-lg border p-2 text-sm"
                         >
                             <option value="">{ "Select skill" }</option>
                             <option value="design">{ "Design" }</option>
@@ -339,21 +339,21 @@ pub fn ApplicantForm(props: &Props) -> Html {
                 </div>
 
                 <div>
-                    <label class="flex items-center">
+                    <label class="flex items-center cursor-pointer">
                         <input
                             type="checkbox"
                             checked={applicant.event_participation.unwrap_or(false)}
                             onchange={event_participation}
                             class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                         />
-                        <span class="ml-2 text-sm text-gray-700">
+                        <span class="ml-2 text-sm theme-text-primary font-medium">
                             { "Have you participated in any events?" }
                         </span>
                     </label>
                 </div>
 
                 <div>
-                    <label for="why_apply" class="block text-sm font-medium text-gray-700">
+                    <label for="why_apply" class="block text-sm font-medium theme-text-primary mb-2">
                         { "Why do you want to apply? (max 150 words)" }
                     </label>
                     <textarea
@@ -363,10 +363,10 @@ pub fn ApplicantForm(props: &Props) -> Html {
                         rows="4"
                         value={applicant.why_apply.clone().unwrap_or_default()}
                         oninput={why_apply}
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2"
+                        class="theme-input mt-1 block w-full rounded-lg border p-2 text-sm"
                         placeholder="Tell us why you want to join E-Cell..."
                     />
-                    <p class="mt-1 text-sm text-gray-500">
+                    <p class="mt-1 text-sm opacity-60">
                         {
                             {
                             let count = applicant
@@ -382,7 +382,7 @@ pub fn ApplicantForm(props: &Props) -> Html {
                 </div>
 
                 <div>
-                    <label for="event_experience" class="block text-sm font-medium text-gray-700">
+                    <label for="event_experience" class="block text-sm font-medium theme-text-primary mb-2">
                         { "Event Experience Details (max 50 words, if yes above)" }
                     </label>
                     <textarea
@@ -391,10 +391,10 @@ pub fn ApplicantForm(props: &Props) -> Html {
                         rows="3"
                         value={applicant.event_experience.clone().unwrap_or_default()}
                         oninput={event_experience}
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2"
+                        class="theme-input mt-1 block w-full rounded-lg border p-2 text-sm"
                         placeholder="Tell us about your event experience..."
                     />
-                    <p class="mt-1 text-sm text-gray-500">
+                    <p class="mt-1 text-sm opacity-60">
                         {
                             {
                             let count = applicant
@@ -413,7 +413,7 @@ pub fn ApplicantForm(props: &Props) -> Html {
                     <button
                         type="submit"
                         disabled={*is_loading}
-                        class="w-full inline-flex justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+                        class="w-full inline-flex justify-center rounded-lg bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed border-none py-3 px-4 text-sm font-semibold text-white shadow-md hover:shadow-lg transition-all duration-200"
                     >
                         {
                             if *is_loading {

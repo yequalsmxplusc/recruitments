@@ -96,22 +96,22 @@ pub fn InterviewSlotBooking(props: &Props) -> Html {
     };
 
     html! {
-        <div class="bg-white shadow sm:rounded-lg mt-6">
-            <div class="px-4 py-5 sm:px-6">
-                <h3 class="text-lg font-medium leading-6 text-gray-900">
+        <div class="glass-card rounded-2xl mt-6">
+            <div class="px-4 py-5 sm:px-6 border-b">
+                <h3 class="text-lg font-medium leading-6 theme-text-primary">
                     { "Interview Slot Booking" }
                 </h3>
-                <p class="mt-1 text-sm text-gray-500">
+                <p class="mt-1 text-sm opacity-75">
                     { "Select an available time slot for your interview" }
                 </p>
             </div>
 
-            <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+            <div class="px-4 py-5 sm:px-6">
                 {
                     if let Some(err) = &*error {
                         html! {
-                            <div class="rounded-md bg-red-50 p-4 mb-4">
-                                <div class="text-red-700">{ err }</div>
+                            <div class="rounded-lg bg-red-500/20 border border-red-500 p-4 mb-4">
+                                <div class="text-red-600 dark:text-red-400">{ err }</div>
                             </div>
                         }
                     } else {
@@ -122,8 +122,8 @@ pub fn InterviewSlotBooking(props: &Props) -> Html {
                 {
                     if let Some(msg) = &*success {
                         html! {
-                            <div class="rounded-md bg-green-50 p-4 mb-4">
-                                <div class="text-green-700">{ msg }</div>
+                            <div class="rounded-lg bg-green-500/20 border border-green-500 p-4 mb-4">
+                                <div class="text-green-600 dark:text-green-400">{ msg }</div>
                             </div>
                         }
                     } else {
@@ -134,13 +134,13 @@ pub fn InterviewSlotBooking(props: &Props) -> Html {
                 {
                     if let Some(selected_slot) = props.applicant.interview_slot.as_deref().filter(|s| !s.is_empty()) {
                         html! {
-                            <div class="rounded-md bg-blue-50 p-4 mb-6">
+                            <div class="rounded-lg bg-blue-500/20 border border-blue-500 p-4 mb-6">
                                 <div class="flex">
                                     <div class="flex-1">
-                                        <h4 class="text-sm font-medium text-blue-900">
+                                        <h4 class="text-sm font-medium theme-text-primary">
                                             { "Current Slot" }
                                         </h4>
-                                        <p class="mt-1 text-sm text-blue-700">
+                                        <p class="mt-1 text-sm text-blue-600 dark:text-blue-400">
                                             { format_datetime(selected_slot) }
                                         </p>
                                     </div>
@@ -157,13 +157,13 @@ pub fn InterviewSlotBooking(props: &Props) -> Html {
                         html! {
                             <div class="flex items-center justify-center">
                                 <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                                <span class="ml-3 text-gray-600">{ "Loading slots..." }</span>
+                                <span class="ml-3 theme-text-primary">{ "Loading slots..." }</span>
                             </div>
                         }
                     } else if slots.is_empty() {
                         html! {
                             <div class="text-center py-6">
-                                <p class="text-gray-600">{ "No slots available at the moment. Please check back later." }</p>
+                                <p class="theme-text-primary opacity-75">{ "No slots available at the moment. Please check back later." }</p>
                             </div>
                         }
                     } else {
@@ -193,20 +193,20 @@ pub fn InterviewSlotBooking(props: &Props) -> Html {
                                                 onclick={on_click}
                                                 disabled={*is_loading}
                                                 class={classes!(
-                                                    "p-4", "rounded-lg", "border-2", "text-left", "font-medium", "transition",
+                                                    "p-4", "rounded-lg", "border-2", "text-left", "font-medium", "transition", "cursor-pointer",
                                                     if is_selected {
-                                                        "border-green-500 bg-green-50 text-green-900"
+                                                        "border-green-500 bg-green-500/10 text-green-600 dark:text-green-400"
                                                     } else if slot.remaining.unwrap_or(0) > 0 {
-                                                        "border-gray-300 bg-white text-gray-900 hover:border-blue-500 hover:bg-blue-50"
+                                                        "glass-card border-blue-400/50 hover:border-blue-500 hover:bg-blue-500/5"
                                                     } else {
-                                                        "border-red-300 bg-red-50 text-red-600 cursor-not-allowed"
+                                                        "border-red-400/50 bg-red-500/10 text-red-600 dark:text-red-400 cursor-not-allowed opacity-75"
                                                     }
                                                 )}
                                             >
-                                                <div class="font-semibold">
+                                                <div class="font-semibold theme-text-primary">
                                                     { format_datetime(&slot_datetime_clone) }
                                                 </div>
-                                                <div class="text-sm mt-1">
+                                                <div class="text-sm mt-1 opacity-75">
                                                     {
                                                         if is_selected {
                                                             html! { "✓ Selected" }

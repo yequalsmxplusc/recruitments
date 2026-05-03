@@ -7,7 +7,6 @@ use crate::components::interview_slots::InterviewSlotBooking;
 use crate::models::applicant::Applicant;
 use crate::services::api;
 use yew::prelude::*;
-use yew_router::prelude::*;
 
 #[derive(Properties, PartialEq)]
 pub struct Props {
@@ -56,9 +55,9 @@ pub fn rounds(props: &Props) -> Html {
 
     html! {
         <>
-        <div class="backdrop-blur-sm bg-gray-900/30 min-h-screen z-10 flex flex-col items-center p-4 lg:p-12 space-y-6">
+        <div class="min-h-screen flex flex-col items-center p-4 lg:p-12 space-y-6 theme-wrapper">
             <Header auth={props.auth.clone()} />
-            <div class="w-full max-w-4xl lg:max-w-6xl xl:max-w-7xl bg-white shadow sm:rounded-lg overflow-y-auto max-h-[80vh] lg:max-h-full px-6 py-5">
+            <div class="w-full max-w-4xl lg:max-w-6xl xl:max-w-7xl glass-card rounded-2xl px-6 py-8">
             {
                 if let Some(err) = &*error {
                     html! { <div class="text-red-500 text-lg lg:text-xl">{ err }</div> }
@@ -67,9 +66,10 @@ pub fn rounds(props: &Props) -> Html {
 
                     html! {
                         <>
-                            <div class="mb-6 px-4 py-5 sm:px-6 border-b border-gray-200">
-                                <h3 class="text-xl leading-6 font-medium text-gray-900">
-                                    { "Current Round: " } { current_round }
+                            <div class="mb-6 px-4 py-5 sm:px-6 border-b">
+                                <h3 class="text-2xl leading-6 font-medium theme-text-primary">
+                                    { "Current Round: " }
+                                    <span class="text-blue-600 dark:text-blue-400">{ current_round }</span>
                                 </h3>
                             </div>
                             {
@@ -79,8 +79,8 @@ pub fn rounds(props: &Props) -> Html {
                                             && app.grad_year.as_deref().map_or(false, |s| !s.is_empty());
                                         if has_details {
                                             html! {
-                                                <div class="p-6 text-center text-lg text-green-600 font-semibold">
-                                                    { "Application Form Submitted successfully! Next rounds soon will be shown." }
+                                                <div class="p-6 text-center text-lg text-green-600 dark:text-green-400 font-semibold bg-green-500/20 rounded-lg">
+                                                    { "✓ Application Form Submitted successfully!" }
                                                 </div>
                                             }
                                         } else {
@@ -96,8 +96,8 @@ pub fn rounds(props: &Props) -> Html {
                                     "Case Study 1" => {
                                         if app.submission1_url.as_deref().map_or(false, |s| !s.is_empty()) {
                                             html! {
-                                                <div class="p-6 text-center text-lg text-green-600 font-semibold">
-                                                    { "Case Study 1 submitted successfully! Next rounds soon will be shown." }
+                                                <div class="p-6 text-center text-lg text-green-600 dark:text-green-400 font-semibold bg-green-500/20 rounded-lg">
+                                                    { "✓ Case Study 1 submitted successfully!" }
                                                 </div>
                                             }
                                         } else {
@@ -114,8 +114,8 @@ pub fn rounds(props: &Props) -> Html {
                                     "Case Study 2" => {
                                         if app.submission2_url.as_deref().map_or(false, |s| !s.is_empty()) {
                                             html! {
-                                                <div class="p-6 text-center text-lg text-green-600 font-semibold">
-                                                    { "Case Study 2 submitted successfully! Next rounds soon will be shown." }
+                                                <div class="p-6 text-center text-lg text-green-600 dark:text-green-400 font-semibold bg-green-500/20 rounded-lg">
+                                                    { "✓ Case Study 2 submitted successfully!" }
                                                 </div>
                                             }
                                         } else {
@@ -132,8 +132,8 @@ pub fn rounds(props: &Props) -> Html {
                                     "Interview" => {
                                         if app.interview_slot.as_deref().map_or(false, |s| !s.is_empty()) {
                                             html! {
-                                                <div class="p-6 text-center text-lg text-green-600 font-semibold">
-                                                    { format!("You have booked your interview on {} . We will contact you soon with the meeting details.", app.interview_slot.as_deref().unwrap_or("N/A")) }
+                                                <div class="p-6 text-center text-lg text-green-600 dark:text-green-400 font-semibold bg-green-500/20 rounded-lg">
+                                                    { format!("✓ Interview booked on {} . We will contact you soon with the meeting details.", app.interview_slot.as_deref().unwrap_or("N/A")) }
                                                 </div>
                                             }
                                         } else {
@@ -148,7 +148,7 @@ pub fn rounds(props: &Props) -> Html {
                                     },
                                     _ => {
                                         html! {
-                                            <div class="p-6 text-center text-lg text-gray-600 font-semibold">
+                                            <div class="p-6 text-center text-lg theme-text-primary font-semibold opacity-75">
                                                 { "Your application has been processed. Please wait for further updates." }
                                             </div>
                                         }
@@ -158,7 +158,7 @@ pub fn rounds(props: &Props) -> Html {
                         </>
                     }
                 } else {
-                    html! { <p class="text-gray-600 text-lg">{ "Loading rounds data..." }</p> }
+                    html! { <p class="theme-text-primary text-lg">{ "Loading rounds data..." }</p> }
                 }
             }
             </div>

@@ -1,0 +1,242 @@
+/* Global Theme Styles */
+
+:root {
+  --bg-image: url('https://cse.jadavpuruniversity.in/public/files/1691496574.webp');
+}
+
+/* Light Mode Background */
+html.light-mode {
+  background-image: var(--bg-image);
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+}
+
+html.light-mode::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Dark Mode Background */
+html.dark-mode {
+  background-image: var(--bg-image);
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+}
+
+html.dark-mode::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(17, 24, 39, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Base layout */
+html,
+body,
+#app {
+  position: relative;
+  z-index: 0;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+body {
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+#app {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Main content wrapper */
+.theme-wrapper {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+}
+
+.light-mode .theme-wrapper {
+  background-color: rgba(249, 250, 251, 0.05);
+  color: rgb(17, 24, 39);
+}
+
+.dark-mode .theme-wrapper {
+  background-color: rgba(17, 24, 39, 0.05);
+  color: rgb(243, 244, 246);
+}
+
+/* Glass effect card styling */
+.glass-card {
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  transition: all 0.3s ease;
+}
+
+.light-mode .glass-card {
+  background-color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+}
+
+.dark-mode .glass-card {
+  background-color: rgba(31, 41, 55, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+/* Card styling for both themes */
+.theme-card {
+  transition: all 0.3s ease;
+}
+
+.light-mode .theme-card {
+  background-color: rgba(255, 255, 255, 0.95);
+  border-color: rgba(209, 213, 219, 0.5);
+}
+
+.dark-mode .theme-card {
+  background-color: rgba(31, 41, 55, 0.95);
+  border-color: rgba(55, 65, 81, 0.5);
+}
+
+/* Text colors based on theme */
+.theme-text-primary {
+  transition: color 0.3s ease;
+}
+
+.light-mode .theme-text-primary {
+  color: rgb(17, 24, 39);
+}
+
+.dark-mode .theme-text-primary {
+  color: rgb(243, 244, 246);
+}
+
+/* Floating Header styling */
+.theme-header {
+  transition: all 0.3s ease;
+  position: sticky !important;
+  top: 1rem !important;
+  z-index: 50 !important;
+  margin: 1rem auto !important;
+  width: calc(100% - 2rem) !important;
+  max-width: 80rem !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+.light-mode .theme-header {
+  background-color: rgba(255, 255, 255, 0.7) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: rgb(17, 24, 39) !important;
+}
+
+.dark-mode .theme-header {
+  background-color: rgba(31, 41, 55, 0.7) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: rgb(243, 244, 246) !important;
+}
+
+/* Floating Footer styling */
+.theme-footer {
+  transition: all 0.3s ease;
+  margin: 2rem auto 1rem !important;
+  width: calc(100% - 2rem) !important;
+  max-width: 80rem !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  margin-top: auto !important;
+}
+
+.light-mode .theme-footer {
+  background-color: rgba(255, 255, 255, 0.7) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: rgb(55, 65, 81) !important;
+}
+
+.dark-mode .theme-footer {
+  background-color: rgba(17, 24, 39, 0.7) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: rgb(209, 213, 219) !important;
+}
+
+/* Input styling */
+.theme-input {
+  transition: all 0.3s ease;
+}
+
+.light-mode .theme-input {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-color: rgba(209, 213, 219, 0.6);
+  color: rgb(17, 24, 39);
+}
+
+.light-mode .theme-input::placeholder {
+  color: rgba(107, 114, 128, 0.7);
+}
+
+.dark-mode .theme-input {
+  background-color: rgba(55, 65, 81, 0.9);
+  border-color: rgba(75, 85, 99, 0.6);
+  color: rgb(243, 244, 246);
+}
+
+.dark-mode .theme-input::placeholder {
+  color: rgba(156, 163, 175, 0.7);
+}
+
+/* Focus states */
+.light-mode .theme-input:focus {
+  background-color: rgba(255, 255, 255, 0.95);
+  border-color: rgb(59, 130, 246);
+}
+
+.dark-mode .theme-input:focus {
+  background-color: rgba(75, 85, 99, 0.95);
+  border-color: rgb(96, 165, 250);
+}
+
+/* Smooth transitions */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Prevent excessive transitions on background elements */
+html.light-mode::before,
+html.dark-mode::before {
+  transition: none;
+}
